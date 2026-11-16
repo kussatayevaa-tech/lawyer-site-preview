@@ -317,3 +317,8 @@ body.menu-open .mbar{display:none}.mnav{padding-bottom:28px}.mnav a{padding:10px
 /* нижняя панель: Позвонить · Вопрос (ассистент) · Записаться */
 .mbar .mb-ask{background:var(--em);color:#fff;border-color:var(--em)}.mbar .mb-ask .i{color:var(--gold)}
 @media (max-width:640px){.fab{display:none!important}}
+
+/* ассистент виден всегда: на телефоне кнопка над нижней панелью */
+@media (max-width:640px){.fab{display:inline-flex!important;align-items:center;gap:8px;bottom:86px;right:14px;padding:12px 16px;border-radius:999px;line-height:1;font-size:14px;box-shadow:0 8px 24px rgba(10,61,47,.35)}.fab .fl{display:inline!important}}
+
+.mbar{grid-template-columns:1fr 1.4fr!important}
