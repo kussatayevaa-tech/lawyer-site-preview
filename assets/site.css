@@ -298,3 +298,7 @@ body.menu-open .mbar{display:none}.mnav{padding-bottom:28px}.mnav a{padding:10px
 @media (max-width:640px){.pill.pill-geo{max-width:100%}.pill-geo .pg2{font-size:12px;padding-left:0}}
 
 .hig{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);color:var(--em);flex:none;transition:.2s}.hig:hover{background:var(--em);color:#fff}
+
+.lang{display:grid;place-items:center;height:42px;min-width:52px;padding:0 12px;border-radius:999px;border:1px solid var(--line);color:var(--em);font:800 13px var(--body);letter-spacing:.06em;text-decoration:none;flex:none;transition:.2s}.lang:hover{background:var(--em);color:#fff}
+@media (max-width:860px){.lang{height:38px;min-width:46px;padding:0 10px;font-size:12px}}
+.nav a,.nav-btn{white-space:nowrap}

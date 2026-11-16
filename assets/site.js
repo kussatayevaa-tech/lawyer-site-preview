@@ -170,3 +170,6 @@
     document.body.appendChild(lb);
   });
 })();
+
+/* Переключатель языка: сохраняет текущий раздел */
+document.querySelectorAll('a.lang,a.lang-m').forEach(function(a){a.addEventListener('click',function(){var h=a.getAttribute('href').split('#')[0];a.setAttribute('href',h+(location.hash||''));});});
