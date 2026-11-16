@@ -176,3 +176,49 @@ document.querySelectorAll('a.lang,a.lang-m').forEach(function(a){a.addEventListe
 
 /* Чат из мобильного меню */
 document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();document.body.classList.remove('menu-open');var m=document.querySelector('.mnav');var b=document.querySelector('.burger');if(b&&b.getAttribute('aria-expanded')==='true')b.click();var c=document.getElementById('chatBtn');if(c)c.click();});});
+
+/* Город посетителя по IP (GeoJS): подставляется в плашку и заголовок, нигде не сохраняется */
+(function(){
+  var C=[ // [шаблон (город/область, англ.), именительный рус., родительный рус., каз.]
+   [/almaty oblast|almaty region|konaev|kapshagay|qonaev/,"Алматы","Алматы","Алматы"],
+   [/almaty|alma-ata/,"Алматы","Алматы","Алматы"],
+   [/shymkent|chimkent/,"Шымкент","Шымкента","Шымкент"],
+   [/karaganda|qaraghandy|karagandy|temirtau/,"Караганда","Караганды","Қарағанды"],
+   [/aktobe|aqtobe|aktyubinsk/,"Актобе","Актобе","Ақтөбе"],
+   [/atyrau/,"Атырау","Атырау","Атырау"],
+   [/aktau|aqtau|mangystau|mangistau|zhanaozen/,"Актау","Актау","Ақтау"],
+   [/pavlodar|ekibastuz/,"Павлодар","Павлодара","Павлодар"],
+   [/kostanay|qostanay|kustanay|rudny/,"Костанай","Костаная","Қостанай"],
+   [/semey|semipalatinsk|abai|abay/,"Семей","Семея","Семей"],
+   [/ust-kamenogorsk|oskemen|öskemen|east kazakhstan|ridder/,"Усть-Каменогорск","Усть-Каменогорска","Өскемен"],
+   [/uralsk|oral|west kazakhstan/,"Уральск","Уральска","Орал"],
+   [/petropavl|north kazakhstan/,"Петропавловск","Петропавловска","Петропавл"],
+   [/kokshetau|akmola|aqmola|shchuchinsk/,"Кокшетау","Кокшетау","Көкшетау"],
+   [/taraz|jambyl|zhambyl/,"Тараз","Тараза","Тараз"],
+   [/kyzylorda|qyzylorda/,"Кызылорда","Кызылорды","Қызылорда"],
+   [/taldykorgan|taldyqorgan|zhetysu|jetisu/,"Талдыкорган","Талдыкоргана","Талдықорған"],
+   [/turkestan|turkistan/,"Туркестан","Туркестана","Түркістан"],
+   [/zhezkazgan|jezkazgan|ulytau|satpaev/,"Жезказган","Жезказгана","Жезқазған"]];
+  var kk=(document.documentElement.lang==="kk");
+  function apply(c){
+    var p=document.getElementById("geoCity"), h=document.getElementById("geoH1");
+    if(p) p.textContent=kk?c[3]:c[1];
+    if(h) h.textContent=kk?c[3]:c[2];
+  }
+  function pick(g){
+    if(!g||g.country_code!=="KZ") return null;
+    var s=((g.city||"")+" | "+(g.region||"")).toLowerCase();
+    if(/astana|nur-sultan|akmolinsk/.test((g.city||"").toLowerCase())) return null;
+    for(var i=0;i<C.length;i++) if(C[i][0].test(s)) return C[i];
+    return null;
+  }
+  var cached=null; try{cached=sessionStorage.getItem("geoKZ");}catch(e){}
+  if(cached!==null){ try{var c=pick(JSON.parse(cached)); if(c) apply(c);}catch(e){} return; }
+  if(!window.fetch) return;
+  var ctl=window.AbortController?new AbortController():null; var t=setTimeout(function(){if(ctl)ctl.abort();},2500);
+  fetch("https://get.geojs.io/v1/ip/geo.json",ctl?{signal:ctl.signal}:{}).then(function(r){return r.json();}).then(function(g){
+    clearTimeout(t); var lite={country_code:g.country_code,city:g.city,region:g.region};
+    try{sessionStorage.setItem("geoKZ",JSON.stringify(lite));}catch(e){}
+    var c=pick(lite); if(c) apply(c);
+  }).catch(function(){});
+})();
