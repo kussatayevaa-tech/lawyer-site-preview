@@ -173,3 +173,6 @@
 
 /* Переключатель языка: сохраняет текущий раздел */
 document.querySelectorAll('a.lang,a.lang-m').forEach(function(a){a.addEventListener('click',function(){var h=a.getAttribute('href').split('#')[0];a.setAttribute('href',h+(location.hash||''));});});
+
+/* Чат из мобильного меню */
+document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();document.body.classList.remove('menu-open');var m=document.querySelector('.mnav');var b=document.querySelector('.burger');if(b&&b.getAttribute('aria-expanded')==='true')b.click();var c=document.getElementById('chatBtn');if(c)c.click();});});

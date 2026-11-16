@@ -302,3 +302,9 @@ body.menu-open .mbar{display:none}.mnav{padding-bottom:28px}.mnav a{padding:10px
 .lang{display:grid;place-items:center;height:42px;min-width:52px;padding:0 12px;border-radius:999px;border:1px solid var(--line);color:var(--em);font:800 13px var(--body);letter-spacing:.06em;text-decoration:none;flex:none;transition:.2s}.lang:hover{background:var(--em);color:#fff}
 @media (max-width:860px){.lang{height:38px;min-width:46px;padding:0 10px;font-size:12px}}
 .nav a,.nav-btn{white-space:nowrap}
+
+/* разгрузка: телефон в шапке только иконкой, без плавающей кнопки чата на телефоне */
+.hphone span{display:none}.hphone{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1px solid var(--line)}.hphone:hover{background:var(--em);color:#fff}.hphone:hover .i{color:#fff}
+.hero{padding-bottom:64px}
+@media (max-width:640px){.fab{display:none}}
+@media (max-width:860px){.hphone{display:none}}
