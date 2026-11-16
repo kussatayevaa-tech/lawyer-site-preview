@@ -313,3 +313,7 @@ body.menu-open .mbar{display:none}.mnav{padding-bottom:28px}.mnav a{padding:10px
 @media (max-width:640px){.fab{display:flex!important;bottom:84px;right:14px;padding:14px;border-radius:50%;line-height:0;box-shadow:0 8px 24px rgba(10,61,47,.35)}}
 .results.one{grid-template-columns:1fr;max-width:760px}
 .hero{padding-bottom:0}
+
+/* нижняя панель: Позвонить · Вопрос (ассистент) · Записаться */
+.mbar .mb-ask{background:var(--em);color:#fff;border-color:var(--em)}.mbar .mb-ask .i{color:var(--gold)}
+@media (max-width:640px){.fab{display:none!important}}
