@@ -180,6 +180,7 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
 /* Город посетителя по IP (GeoJS): подставляется в плашку и заголовок, нигде не сохраняется */
 (function(){
   var C=[ // [шаблон (город/область, англ.), именительный рус., родительный рус., каз.]
+   [/astana|nur-sultan|nursultan|akmolinsk|tselinograd/,"Астана","Астаны","Астана"],
    [/almaty oblast|almaty region|konaev|kapshagay|qonaev/,"Алматы","Алматы","Алматы"],
    [/almaty|alma-ata/,"Алматы","Алматы","Алматы"],
    [/shymkent|chimkent/,"Шымкент","Шымкента","Шымкент"],
@@ -208,17 +209,16 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
   function pick(g){
     if(!g||g.country_code!=="KZ") return null;
     var s=((g.city||"")+" | "+(g.region||"")).toLowerCase();
-    if(/astana|nur-sultan|akmolinsk/.test((g.city||"").toLowerCase())) return null;
     for(var i=0;i<C.length;i++) if(C[i][0].test(s)) return C[i];
     return null;
   }
-  var cached=null; try{cached=sessionStorage.getItem("geoKZ");}catch(e){}
+  var cached=null; try{cached=sessionStorage.getItem("geoKZ2");}catch(e){}
   if(cached!==null){ try{var c=pick(JSON.parse(cached)); if(c) apply(c);}catch(e){} return; }
   if(!window.fetch) return;
   var ctl=window.AbortController?new AbortController():null; var t=setTimeout(function(){if(ctl)ctl.abort();},2500);
   fetch("https://get.geojs.io/v1/ip/geo.json",ctl?{signal:ctl.signal}:{}).then(function(r){return r.json();}).then(function(g){
     clearTimeout(t); var lite={country_code:g.country_code,city:g.city,region:g.region};
-    try{sessionStorage.setItem("geoKZ",JSON.stringify(lite));}catch(e){}
+    try{sessionStorage.setItem("geoKZ2",JSON.stringify(lite));}catch(e){}
     var c=pick(lite); if(c) apply(c);
   }).catch(function(){});
 })();
