@@ -241,3 +241,33 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
   }).observe(box, { childList: true });
   setTimeout(upd, 300);
 })();
+
+/* Заголовок первого экрана по словам и параллакс фото */
+(function () {
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var h = document.querySelector(".hero h1");
+  if (h && !reduce) {
+    var i = 0;
+    Array.prototype.slice.call(h.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        var frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function (p) {
+          if (!p) return;
+          if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+          var s = document.createElement("span"); s.className = "w"; s.style.setProperty("--i", i++); s.textContent = p; frag.appendChild(s);
+        });
+        n.parentNode.replaceChild(frag, n);
+      } else if (n.nodeType === 1) { n.classList.add("w"); n.style.setProperty("--i", i++); }
+    });
+  }
+  if (!("IntersectionObserver" in window)) document.documentElement.classList.add("no-io");
+  var ph = document.querySelector(".hero-photo");
+  if (ph && !reduce && window.matchMedia("(min-width: 861px)").matches) {
+    var tick = false;
+    window.addEventListener("scroll", function () {
+      if (tick) return; tick = true;
+      requestAnimationFrame(function () { var y = Math.min(window.scrollY, 700); ph.style.transform = "translateY(" + (y * 0.08).toFixed(1) + "px)"; tick = false; });
+    }, { passive: true });
+  }
+})();
+(function () { Array.prototype.forEach.call(document.querySelectorAll(".eyebrow"), function (e) { if (!e.closest(".rv")) e.classList.add("in"); }); })();
