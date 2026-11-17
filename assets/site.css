@@ -325,3 +325,5 @@ body.menu-open .mbar{display:none}.mnav{padding-bottom:28px}.mnav a{padding:10px
 
 .pill .pcity{font-weight:inherit;color:inherit;display:inline}.pill .pcity span{display:inline;color:inherit;font:inherit;padding:0;margin:0}
 .chat form input{min-width:0}.chat form button{flex:none}
+.results.cases{grid-template-columns:1fr 1fr}.results.cases .rc.wide{grid-column:1/-1}.results.cases .rc{padding:24px 26px}.results.cases .rc h3{font-size:20px}
+@media (max-width:760px){.results.cases{grid-template-columns:1fr}}
