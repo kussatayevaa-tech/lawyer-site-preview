@@ -222,3 +222,22 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
     var c=pick(lite); if(c) apply(c);
   }).catch(function(){});
 })();
+
+/* Запись: стрелки и прокрутка к выбранному дню */
+(function () {
+  var box = document.getElementById("days"); if (!box) return;
+  var wrap = box.parentNode, prev = wrap.querySelector(".prev"), next = wrap.querySelector(".next");
+  function upd() { prev.disabled = box.scrollLeft < 4; next.disabled = box.scrollLeft + box.clientWidth >= box.scrollWidth - 4; }
+  function step(dir) { box.scrollBy({ left: dir * Math.max(box.clientWidth - 80, 160), behavior: "smooth" }); }
+  prev.addEventListener("click", function () { step(-1); });
+  next.addEventListener("click", function () { step(1); });
+  box.addEventListener("scroll", upd, { passive: true });
+  window.addEventListener("resize", upd);
+  new MutationObserver(function () {
+    var sel = box.querySelector('[aria-pressed="true"]');
+    if (sel) { var l = sel.offsetLeft - box.offsetLeft, r = l + sel.offsetWidth;
+      if (l < box.scrollLeft || r > box.scrollLeft + box.clientWidth) box.scrollTo({ left: Math.max(0, l - 16), behavior: "smooth" }); }
+    upd();
+  }).observe(box, { childList: true });
+  setTimeout(upd, 300);
+})();

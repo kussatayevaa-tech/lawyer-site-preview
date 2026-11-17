@@ -327,3 +327,23 @@ body.menu-open .mbar{display:none}.mnav{padding-bottom:28px}.mnav a{padding:10px
 .chat form input{min-width:0}.chat form button{flex:none}
 .results.cases{grid-template-columns:1fr 1fr}.results.cases .rc.wide{grid-column:1/-1}.results.cases .rc{padding:24px 26px}.results.cases .rc h3{font-size:20px}
 @media (max-width:760px){.results.cases{grid-template-columns:1fr}}
+
+/* Запись: удобный выбор дня и времени на телефоне */
+.book-grid>*{min-width:0}
+.days-wrap{position:relative;display:flex;align-items:center;gap:6px}
+.days{scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;min-width:0;padding:4px 2px 8px}
+.days::-webkit-scrollbar{display:none}
+.day{scroll-snap-align:start;min-width:70px;padding:12px 8px}
+.dnav{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:#fff;color:var(--em);font:700 22px/1 var(--body);cursor:pointer;display:grid;place-items:center;padding:0 0 3px}
+.dnav:disabled{opacity:.3;cursor:default}
+.swipe-hint{display:none;font-size:13px;margin:6px 0 0;color:var(--muted)}
+.slot{min-height:48px}
+@media (max-width:600px){
+.panel{padding:22px 16px}
+.dnav{display:none}
+.swipe-hint{display:block}
+.days{gap:10px;margin:0 -16px;padding:4px 16px 10px;scroll-padding-left:16px}
+.day{min-width:74px;font-size:14px}.day b{font-size:24px}
+.slots{grid-template-columns:repeat(3,1fr);gap:10px}
+.slot{font-size:17px;min-height:52px}
+}
