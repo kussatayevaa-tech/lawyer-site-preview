@@ -214,6 +214,13 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
   }
   var cached=null; try{cached=sessionStorage.getItem("geoKZ2");}catch(e){}
   if(cached!==null){ try{var c=pick(JSON.parse(cached)); if(c) apply(c);}catch(e){} return; }
+  if(!window.fetch) return;
+  var ctl=window.AbortController?new AbortController():null; var t=setTimeout(function(){if(ctl)ctl.abort();},2500);
+  fetch("https://get.geojs.io/v1/ip/geo.json",ctl?{signal:ctl.signal}:{}).then(function(r){return r.json();}).then(function(g){
+    clearTimeout(t); var lite={country_code:g.country_code,city:g.city,region:g.region};
+    try{sessionStorage.setItem("geoKZ2",JSON.stringify(lite));}catch(e){}
+    var c=pick(lite); if(c) apply(c);
+  }).catch(function(){});
 })();
 
 /* Запись: стрелки и прокрутка к выбранному дню */
