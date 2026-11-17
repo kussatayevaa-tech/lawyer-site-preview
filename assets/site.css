@@ -347,3 +347,7 @@ body.menu-open .mbar{display:none}.mnav{padding-bottom:28px}.mnav a{padding:10px
 .slots{grid-template-columns:repeat(3,1fr);gap:10px}
 .slot{font-size:17px;min-height:52px}
 }
+
+/* Блок «С чем вам помочь?» */
+.svc-lead a{color:var(--em);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+@media (max-width:600px){.sec-head h2{font-size:30px;line-height:1.15}.sec-head .lead{font-size:16px;line-height:1.5;color:#4a5753}.sec-head{margin-bottom:24px}}
