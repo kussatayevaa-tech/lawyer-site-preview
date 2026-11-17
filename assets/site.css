@@ -398,3 +398,8 @@ html{scroll-behavior:smooth}
 @media (max-width:1040px){.about-grid{grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:44px}}
 @media (max-width:860px){.about-grid{grid-template-columns:1fr;gap:40px}.photo-frame{max-width:420px;margin:0 auto 16px}}
 @media (max-width:480px){.photo-frame{max-width:calc(100% - 18px);margin:0 18px 16px 0}}
+/* Кнопки записи «горят» и на телефоне */
+.mbar a.mb-main{position:relative;overflow:hidden;isolation:isolate;box-shadow:0 6px 18px -6px rgba(138,106,44,.75);animation:softGlow 3.2s ease-in-out 2s infinite}
+.mbar a.mb-main::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-18deg);animation:sheen 5.5s ease-in-out 2.5s infinite;z-index:-1;pointer-events:none}
+/* Если на телефоне включено «Уменьшение движения»: без движения, но кнопки все равно светятся */
+@media (prefers-reduced-motion:reduce){.btn-gold,.mbar a.mb-main{background:linear-gradient(135deg,#d9bd80,var(--gold) 55%,#b8955a);box-shadow:0 0 0 3px rgba(200,169,107,.28),0 10px 24px -10px rgba(138,106,44,.8)}}
