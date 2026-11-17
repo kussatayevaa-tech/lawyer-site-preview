@@ -393,7 +393,7 @@ html{scroll-behavior:smooth}
 .about-grid{grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:64px;align-items:start}
 .photo-frame{max-width:440px;width:100%;margin:0 0 20px 0}
 .photo-frame::before{border-radius:30px;transform:translate(16px,16px)}
-.photo-frame img{aspect-ratio:1/1;border-radius:30px;object-fit:cover;object-position:50% 22%}
+.photo-frame img{width:100%;height:auto;aspect-ratio:1/1;border-radius:30px;object-fit:cover;object-position:50% 22%}
 .photo-frame::after{content:"";position:absolute;left:22px;bottom:22px;width:56px;height:56px;border-left:2px solid var(--gold);border-bottom:2px solid var(--gold);border-radius:0 0 0 12px;opacity:.9;pointer-events:none}
 @media (max-width:1040px){.about-grid{grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:44px}}
 @media (max-width:860px){.about-grid{grid-template-columns:1fr;gap:40px}.photo-frame{max-width:420px;margin:0 auto 16px}}
