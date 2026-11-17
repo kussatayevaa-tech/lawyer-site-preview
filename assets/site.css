@@ -403,3 +403,5 @@ html{scroll-behavior:smooth}
 .mbar a.mb-main::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-18deg);animation:sheen 5.5s ease-in-out 2.5s infinite;z-index:-1;pointer-events:none}
 /* Если на телефоне включено «Уменьшение движения»: без движения, но кнопки все равно светятся */
 @media (prefers-reduced-motion:reduce){.btn-gold,.mbar a.mb-main{background:linear-gradient(135deg,#d9bd80,var(--gold) 55%,#b8955a);box-shadow:0 0 0 3px rgba(200,169,107,.28),0 10px 24px -10px rgba(138,106,44,.8)}}
+.about-name{margin-bottom:6px}
+.about-role{font:700 13px/1.4 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--bronze);margin:0 0 18px}
