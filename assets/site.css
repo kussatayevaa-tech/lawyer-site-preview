@@ -410,3 +410,4 @@ html{scroll-behavior:smooth}
 @media(max-width:560px){.calc{padding:18px}.calc-pay{grid-template-columns:1fr 1fr}.calc-pay .calc-del{grid-column:span 2;width:100%}}
 @media(max-width:560px){.calc-res{padding:16px}.calc-res table{min-width:0;font-size:13px}.calc-res th,.calc-res td{padding:7px 6px}.calc-res h2{font-size:24px}}
 .calc label small{font-weight:400;font-size:13px;line-height:1.4;color:#6b6457}.calc-how{background:#fbf6ea;border-radius:14px;padding:14px 18px}.calc-how ol{margin:8px 0 0;padding-left:20px;display:grid;gap:4px;font-size:15px}.calc-period{margin:0;padding:12px 14px;border-radius:12px;background:#eef3ec;font-weight:600}
+@media (max-width:860px){.aside{position:static;margin-bottom:56px}}
