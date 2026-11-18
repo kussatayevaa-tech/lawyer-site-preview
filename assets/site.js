@@ -333,8 +333,9 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
     h += '<p class="calc-total">Итого неустойка: <b>' + money(final) + " тенге</b></p>";
     if (final !== total) h += "<p>Расчетная сумма " + money(total) + " тенге превышает предел по договору, поэтому итог ограничен пределом " + money(capSum) + " тенге.</p>";
     if (base <= 0) h += "<p>Долг погашен полностью, неустойка начислена по день последней оплаты.</p>";
-    h += '<p class="fine">Суд по требованию должника вправе уменьшить неустойку, если она чрезмерно велика по сравнению с убытками кредитора (ст. 297 ГК).</p>';
-    res.innerHTML = h; res.hidden = false; res.scrollIntoView({ behavior: "smooth", block: "start" });
+    h += '<p class="fine">Суд по требованию должника вправе уменьшить неустойку, если она чрезмерно велика по сравнению с убытками кредитора (ст. 297 ГК). <a href="#umenshenie-neustojki" data-calc-anchor>Как заявить об уменьшении</a></p>';
+    res.innerHTML = h; res.hidden = false;
+    var an = res.querySelector("[data-calc-anchor]"); if (an) an.addEventListener("click", function (ev) { ev.preventDefault(); var t = document.getElementById("umenshenie-neustojki"); if (t) t.scrollIntoView({ behavior: "smooth" }); }); res.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   sync();
 })();

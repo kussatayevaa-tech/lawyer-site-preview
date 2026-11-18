@@ -333,8 +333,9 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
     h += '<p class="calc-total">Барлығы тұрақсыздық айыбы: <b>' + money(final) + " теңге</b></p>";
     if (final !== total) h += "<p>Есептік сома " + money(total) + " теңге шарт бойынша шектен асады, сондықтан нәтиже шекпен шектелді: " + money(capSum) + " теңге.</p>";
     if (base <= 0) h += "<p>Борыш толық өтелді, тұрақсыздық айыбы соңғы төлем күніне дейін есептелді.</p>";
-    h += '<p class="fine">Тұрақсыздық айыбы кредитордың залалымен салыстырғанда тым жоғары болса, сот борышкердің талабы бойынша оны азайтуға құқылы (АК-нің 297-бабы).</p>';
-    res.innerHTML = h; res.hidden = false; res.scrollIntoView({ behavior: "smooth", block: "start" });
+    h += '<p class="fine">Тұрақсыздық айыбы кредитордың залалымен салыстырғанда тым жоғары болса, сот борышкердің талабы бойынша оны азайтуға құқылы (АК-нің 297-бабы). <a href="#umenshenie-neustojki" data-calc-anchor>Азайту туралы қалай мәлімдеуге болады</a></p>';
+    res.innerHTML = h; res.hidden = false;
+    var an = res.querySelector("[data-calc-anchor]"); if (an) an.addEventListener("click", function (ev) { ev.preventDefault(); var t = document.getElementById("umenshenie-neustojki"); if (t) t.scrollIntoView({ behavior: "smooth" }); }); res.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   sync();
 })();
