@@ -278,7 +278,7 @@ body.menu-open .mbar{display:none}.mnav{padding-bottom:28px}.mnav a{padding:10px
 .gal{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.gal img{aspect-ratio:3/4;object-fit:cover}.gal button{border-radius:4px}
 @media (max-width:860px){.gal{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none}}
 
-.brand .logo{height:46px;width:auto;display:block}.ft .brand .logo{filter:brightness(0) invert(1);height:54px}.arch img{object-position:50% 30%}
+.brand .logo{height:46px;width:auto;display:block}.ft .brand .logo{height:54px}.arch img{object-position:50% 30%}
 @media (max-width:860px){.brand .logo{height:38px}}
 .brand .logo{height:62px}.ft .brand .logo{height:72px}@media (max-width:860px){.brand .logo{height:50px}}
 
