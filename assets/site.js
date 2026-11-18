@@ -294,6 +294,14 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
     row.querySelector(".calc-del").addEventListener("click", function () { row.remove(); });
     pays.appendChild(row);
   });
+  function period() {
+    var E = day($("cDue").value), F = day($("cTo").value), p = $("cPeriod");
+    if (isNaN(E) || isNaN(F)) { p.hidden = true; return; }
+    if (F <= E) { p.textContent = "Дата расчета должна быть позже последнего дня оплаты."; p.hidden = false; return; }
+    p.textContent = "Неустойка начисляется с " + fmtD(E + 1) + " по " + fmtD(F) + " включительно: " + (F - E) + " дн. просрочки.";
+    p.hidden = false;
+  }
+  ["cDue", "cTo"].forEach(function (id) { $(id).addEventListener("change", period); $(id).addEventListener("input", period); });
   var t = new Date(); $("cTo").value = t.getFullYear() + "-" + ("0" + (t.getMonth() + 1)).slice(-2) + "-" + ("0" + t.getDate()).slice(-2);
   function fail(m) { err.textContent = m; err.hidden = false; res.hidden = true; }
   form.addEventListener("submit", function (e) {
@@ -329,6 +337,7 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
     var h = '<h2>Результат расчета</h2><div class="tbl"><table><thead><tr><th>Период</th><th>Дней</th><th>Сумма долга, тенге</th><th>Неустойка, тенге</th></tr></thead><tbody>';
     rows.forEach(function (r) { h += "<tr><td>" + r[0] + " – " + r[1] + "</td><td>" + r[2] + "</td><td>" + money(r[3]) + "</td><td>" + money(r[4]) + "</td></tr>"; });
     h += "</tbody></table></div>";
+    h += "<p>Период просрочки: с " + fmtD(E + 1) + " по " + fmtD(F) + ", " + (F - E) + " дн.</p>";
     h += "<p>" + (law ? "Ставка: " + String(rate).replace(".", ",") + "% годовых, " + yd + " дней в году (ст. 353 ГК)." : "Ставка по договору: " + String(rate).replace(".", ",") + "% в день.") + "</p>";
     h += '<p class="calc-total">Итого неустойка: <b>' + money(final) + " тенге</b></p>";
     if (final !== total) h += "<p>Расчетная сумма " + money(total) + " тенге превышает предел по договору, поэтому итог ограничен пределом " + money(capSum) + " тенге.</p>";

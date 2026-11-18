@@ -294,6 +294,14 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
     row.querySelector(".calc-del").addEventListener("click", function () { row.remove(); });
     pays.appendChild(row);
   });
+  function period() {
+    var E = day($("cDue").value), F = day($("cTo").value), p = $("cPeriod");
+    if (isNaN(E) || isNaN(F)) { p.hidden = true; return; }
+    if (F <= E) { p.textContent = "Есеп күні төлемнің соңғы күнінен кейін болуы керек."; p.hidden = false; return; }
+    p.textContent = "Тұрақсыздық айыбы " + fmtD(E + 1) + " бастап " + fmtD(F) + " дейін (қоса алғанда) есептеледі: мерзімі өткен " + (F - E) + " күн.";
+    p.hidden = false;
+  }
+  ["cDue", "cTo"].forEach(function (id) { $(id).addEventListener("change", period); $(id).addEventListener("input", period); });
   var t = new Date(); $("cTo").value = t.getFullYear() + "-" + ("0" + (t.getMonth() + 1)).slice(-2) + "-" + ("0" + t.getDate()).slice(-2);
   function fail(m) { err.textContent = m; err.hidden = false; res.hidden = true; }
   form.addEventListener("submit", function (e) {
@@ -329,6 +337,7 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
     var h = '<h2>Есептеу нәтижесі</h2><div class="tbl"><table><thead><tr><th>Кезең</th><th>Күн</th><th>Борыш сомасы, теңге</th><th>Тұрақсыздық айыбы, теңге</th></tr></thead><tbody>';
     rows.forEach(function (r) { h += "<tr><td>" + r[0] + " – " + r[1] + "</td><td>" + r[2] + "</td><td>" + money(r[3]) + "</td><td>" + money(r[4]) + "</td></tr>"; });
     h += "</tbody></table></div>";
+    h += "<p>Мерзімі өткен кезең: " + fmtD(E + 1) + " бастап " + fmtD(F) + ", " + (F - E) + " күн.</p>";
     h += "<p>" + (law ? "Мөлшерлеме: " + String(rate).replace(".", ",") + "% жылдық, " + yd + " күн жылына (АК-нің 353-бабы)." : "Шарт бойынша мөлшерлеме: " + String(rate).replace(".", ",") + "% күніне.") + "</p>";
     h += '<p class="calc-total">Барлығы тұрақсыздық айыбы: <b>' + money(final) + " теңге</b></p>";
     if (final !== total) h += "<p>Есептік сома " + money(total) + " теңге шарт бойынша шектен асады, сондықтан нәтиже шекпен шектелді: " + money(capSum) + " теңге.</p>";
