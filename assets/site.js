@@ -271,3 +271,70 @@ document.querySelectorAll('[data-open-chat]').forEach(function(a){a.addEventList
   }
 })();
 (function () { Array.prototype.forEach.call(document.querySelectorAll(".eyebrow"), function (e) { if (!e.closest(".rv")) e.classList.add("in"); }); })();
+
+/* Калькулятор неустойки */
+(function () {
+  var form = document.getElementById("calc"); if (!form) return;
+  var $ = function (id) { return document.getElementById(id); };
+  var pays = $("cPays"), res = $("cRes"), err = $("cErr");
+  function num(v) { v = String(v || "").replace(/\s/g, "").replace(",", "."); var n = parseFloat(v); return isFinite(n) ? n : NaN; }
+  function day(v) { if (!v) return NaN; var p = v.split("-"); return Date.UTC(+p[0], +p[1] - 1, +p[2]) / 864e5; }
+  function fmtD(d) { var x = new Date(d * 864e5); return ("0" + x.getUTCDate()).slice(-2) + "." + ("0" + (x.getUTCMonth() + 1)).slice(-2) + "." + x.getUTCFullYear(); }
+  function money(n) { return n.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/ /g, " "); }
+  function mode() { var r = form.querySelector("input[name=mode]:checked"); return r ? r.value : "contract"; }
+  function sync() {
+    var law = mode() === "law";
+    form.querySelectorAll(".m-law").forEach(function (e) { e.hidden = !law; });
+    form.querySelectorAll(".m-contract").forEach(function (e) { e.hidden = law; });
+  }
+  form.querySelectorAll("input[name=mode]").forEach(function (r) { r.addEventListener("change", function () { sync(); res.hidden = true; }); });
+  $("cAdd").addEventListener("click", function () {
+    var row = document.createElement("div"); row.className = "calc-pay";
+    row.innerHTML = '<label>Дата оплаты<input type="date" class="pD"></label><label>Сумма, тенге<input type="text" inputmode="decimal" class="pA"></label><button type="button" class="calc-del" aria-label="Удалить">×</button>';
+    row.querySelector(".calc-del").addEventListener("click", function () { row.remove(); });
+    pays.appendChild(row);
+  });
+  var t = new Date(); $("cTo").value = t.getFullYear() + "-" + ("0" + (t.getMonth() + 1)).slice(-2) + "-" + ("0" + t.getDate()).slice(-2);
+  function fail(m) { err.textContent = m; err.hidden = false; res.hidden = true; }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault(); err.hidden = true;
+    var D = num($("cDebt").value), E = day($("cDue").value), F = day($("cTo").value), law = mode() === "law";
+    if (!(D > 0)) return fail("Укажите сумму долга.");
+    if (isNaN(E) || isNaN(F)) return fail("Укажите последний день оплаты и дату расчета.");
+    if (F <= E) return fail("Дата расчета должна быть позже последнего дня оплаты.");
+    var rate, cap = NaN, yd = 365;
+    if (law) { rate = num($("cBase").value); yd = +$("cYear").value; if (!(rate > 0)) return fail("Укажите базовую ставку Национального Банка."); }
+    else { rate = num($("cRate").value); cap = num($("cCap").value); if (!(rate > 0)) return fail("Укажите размер неустойки по договору в процентах за день."); }
+    var list = [];
+    var bad = false;
+    pays.querySelectorAll(".calc-pay").forEach(function (r) {
+      var d = day(r.querySelector(".pD").value), a = num(r.querySelector(".pA").value);
+      if (isNaN(d) && isNaN(a)) return;
+      if (isNaN(d) || !(a > 0)) { bad = true; return; }
+      list.push({ d: d, a: a });
+    });
+    if (bad) return fail("Проверьте даты и суммы частичных оплат.");
+    list.sort(function (x, y) { return x.d - y.d; });
+    var base = D, cur = E, rows = [], total = 0, i;
+    for (i = 0; i < list.length && list[i].d <= E; i++) base -= list[i].a;
+    function add(to) {
+      var days = to - cur; if (days <= 0 || base <= 0) { cur = to; return; }
+      var s = law ? base * rate / 100 / yd * days : base * rate / 100 * days;
+      rows.push([fmtD(cur + 1), fmtD(to), days, base, s]); total += s; cur = to;
+    }
+    for (; i < list.length && list[i].d <= F; i++) { add(list[i].d); base -= list[i].a; }
+    add(F);
+    var capSum = (!law && cap > 0) ? D * cap / 100 : NaN, final = total;
+    if (capSum === capSum && total > capSum) final = capSum;
+    var h = '<h2>Результат расчета</h2><div class="tbl"><table><thead><tr><th>Период</th><th>Дней</th><th>Сумма долга, тенге</th><th>Неустойка, тенге</th></tr></thead><tbody>';
+    rows.forEach(function (r) { h += "<tr><td>" + r[0] + " – " + r[1] + "</td><td>" + r[2] + "</td><td>" + money(r[3]) + "</td><td>" + money(r[4]) + "</td></tr>"; });
+    h += "</tbody></table></div>";
+    h += "<p>" + (law ? "Ставка: " + String(rate).replace(".", ",") + "% годовых, " + yd + " дней в году (ст. 353 ГК)." : "Ставка по договору: " + String(rate).replace(".", ",") + "% в день.") + "</p>";
+    h += '<p class="calc-total">Итого неустойка: <b>' + money(final) + " тенге</b></p>";
+    if (final !== total) h += "<p>Расчетная сумма " + money(total) + " тенге превышает предел по договору, поэтому итог ограничен пределом " + money(capSum) + " тенге.</p>";
+    if (base <= 0) h += "<p>Долг погашен полностью, неустойка начислена по день последней оплаты.</p>";
+    h += '<p class="fine">Суд по требованию должника вправе уменьшить неустойку, если она чрезмерно велика по сравнению с убытками кредитора (ст. 297 ГК).</p>';
+    res.innerHTML = h; res.hidden = false; res.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  sync();
+})();
