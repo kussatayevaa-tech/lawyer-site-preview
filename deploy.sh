@@ -24,6 +24,7 @@ wget -q -O site.tar.gz "$SRC"
 tar xzf site.tar.gz
 cd lawyer-site-preview-main
 rm -f deploy.sh .nojekyll README.md
+rm -rf admin-setup   # установка админки, на сайт не выкладывается
 
 echo "2/5 Снимаю запрет индексации"
 find . -name '*.html' -exec sed -i \
