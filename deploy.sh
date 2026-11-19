@@ -34,6 +34,10 @@ echo "3/5 Проверяю, что скачалось целиком"
 test -s index.html || { echo "ОШИБКА: нет главной"; exit 1; }
 test -s kk.html || { echo "ОШИБКА: нет казахской версии"; exit 1; }
 test -s stati/razdel-imushchestva/index.html || { echo "ОШИБКА: нет страниц статей"; exit 1; }
+test -s uslugi/semya/index.html || { echo "ОШИБКА: нет страниц услуг"; exit 1; }
+test -s yurist/almaty/index.html || { echo "ОШИБКА: нет городских страниц"; exit 1; }
+test -s stati/yurist-ili-advokat/index.html || { echo "ОШИБКА: нет новой статьи"; exit 1; }
+test "$(find . -name 'index.html' | wc -l)" -ge 70 || { echo "ОШИБКА: страниц меньше, чем должно быть"; exit 1; }
 test -s assets/site.css || { echo "ОШИБКА: нет стилей"; exit 1; }
 grep -q 'rel="canonical"' index.html || { echo "ОШИБКА: нет canonical"; exit 1; }
 if grep -rl 'name="robots"' --include='*.html' . | grep .; then
