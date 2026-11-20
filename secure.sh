@@ -25,10 +25,26 @@ maxretry = 5
 enabled = true
 backend = systemd
 JAIL
+cat > /etc/fail2ban/filter.d/kussatayev-admin.conf <<FLT
+[Definition]
+failregex = ^<HOST> .*"POST /admin/login HTTP/[0-9.]+" 401
+ignoreregex =
+FLT
+cat > /etc/fail2ban/jail.d/kussatayev-admin.conf <<JAIL2
+[kussatayev-admin]
+enabled = true
+filter = kussatayev-admin
+port = http,https
+logpath = /var/log/nginx/access.log
+maxretry = 5
+findtime = 15m
+bantime = 1h
+JAIL2
 systemctl enable fail2ban >/dev/null 2>&1 || true
 systemctl restart fail2ban
-sleep 2
-fail2ban-client status sshd >/dev/null 2>&1 && echo "   sshd под охраной: 5 попыток за 15 минут, блокировка на час"
+sleep 3
+fail2ban-client status sshd >/dev/null 2>&1 && echo "   вход по SSH: 5 попыток за 15 минут, блокировка на час"
+fail2ban-client status kussatayev-admin >/dev/null 2>&1 && echo "   вход в панель: 5 попыток за 15 минут, блокировка на час"
 
 echo "3/4 Заголовки безопасности в nginx"
 mkdir -p /etc/nginx/snippets
