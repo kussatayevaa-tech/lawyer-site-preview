@@ -60,19 +60,22 @@ done
 python3 - <<'PYEOF'
 import io
 line = "    include snippets/kussatayev-security.conf;\n"
-for path in ("/etc/nginx/sites-available/default", "/etc/nginx/sites-available/kussatayev-admin"):
+# Панель свои заголовки ставит сама и строже, поэтому в ее файл ничего не добавляем:
+# иначе браузер получает по два значения X-Frame-Options и может не применить ни одного.
+for path, add in (("/etc/nginx/sites-available/default", True),
+                  ("/etc/nginx/sites-available/kussatayev-admin", False)):
     try:
         src = io.open(path, encoding="utf-8").read().splitlines(True)
     except OSError:
         continue
-    out, done, n = [], False, 0
+    out, done, n = [], not add, 0
     for ln in src:
         if "kussatayev-security.conf" in ln:   # прежняя вставка, в том числе неудачная
             continue
         out.append(ln)
         t = ln.strip()
         if t.startswith("server") and "{" in t:
-            done = False
+            done = not add
         elif (not done) and t.startswith("listen") and "443" in t:
             out.append(line)   # внутрь блока HTTPS, один раз на блок
             done, n = True, n + 1
