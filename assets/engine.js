@@ -13,6 +13,7 @@ const CFG = {
   leadHours: 3,
   docsUrl: ""   // приём документов отключён: хранение должно быть в РК (ст. 12 Закона о ПД)
 };
+const API="https://admin.kussatayev.kz";   // панель юриста: заявка уходит прямо в нее
 const MONTHS=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
 const MON_S=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
 const DOW=["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];
@@ -54,7 +55,19 @@ function buildDays(){
 }
 let DAYS=buildDays();
 let taken=new Set();
-const free=s=>!taken.has(s.id);
+let apiSlots=null;   // что панель считает свободным: занятое в ней время на сайте не показываем
+const free=s=>!taken.has(s.id)&&(!apiSlots||apiSlots.has(s.id));
+async function loadSlots(){
+  try{
+    const r=await fetch(API+"/api/slots",{cache:"no-store"});
+    if(!r.ok) return;
+    const j=await r.json(), set=new Set();
+    for(const day in (j.slots||{})) for(const t of (j.slots[day]||[])) set.add(day+"_"+String(t).replace(":",""));
+    if(!set.size) return;
+    apiSlots=set; DAYS=buildDays();
+    renderDays(); renderSlots(); renderPicked(); renderNext();
+  }catch(e){}
+}
 const dayShort=d=>DOW[d.dow]+", "+d.d+" "+MON_S[d.m];
 const slotLabel=(d,s)=>d.d+" "+MONTHS[d.m]+" ("+DOW[d.dow]+"), "+s.time+" по Астане";
 function findSlot(id){for(const d of DAYS)for(const s of d.slots)if(s.id===id)return {d,s};return null;}
@@ -80,6 +93,16 @@ async function reserve(slotId,data){
   if(!f) throw new Error("slot_gone");
   if(taken.has(slotId)) throw new Error("slot_taken");
   const label=slotLabel(f.d,f.s);
+  // заявка уходит в панель юриста; если панель недоступна, остается прежний путь через WhatsApp
+  let sent=false;
+  try{
+    const iso=f.d.y+"-"+pad(f.d.m+1)+"-"+pad(f.d.d)+"T"+f.s.time;
+    const r=await fetch(API+"/api/bookings",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name:data.name,phone:data.phone,topic:data.topic||"",message:data.text||"",
+                           slot:iso,consent:true,website:(($("#fWeb")||{}).value)||""})});
+    if(r.status===201) sent=true;
+    else if(r.status===409){ taken.add(slotId); renderSlots(); throw new Error("slot_taken"); }
+  }catch(e){ if(e&&e.message==="slot_taken") throw e; }
   let saved=false;
   if(db){
     try{
@@ -90,8 +113,8 @@ async function reserve(slotId,data){
       saved=true;
     }catch(e){ if(e&&e.message==="slot_taken") throw e; saved=false; }
   }
-  const text="Здравствуйте, Айдана Ерлановна! Хочу записаться на консультацию: "+label+". Меня зовут "+data.name+", телефон "+data.phone+"."+(data.topic?" Тема: "+data.topic+".":"")+(data.text?" Кратко: "+data.text:"")+" Пришлите, пожалуйста, реквизиты для оплаты консультации. Даю согласие на обработку моих персональных данных на условиях Политики конфиденциальности сайта (ред. от 18.11.2026).";
-  return {saved,label,text,url:contactUrl(text)};
+  const text="Здравствуйте, Айдана Ерлановна! Хочу записаться на консультацию: "+label+". Меня зовут "+data.name+", телефон "+data.phone+"."+(data.topic?" Тема: "+data.topic+".":"")+(data.text?" Кратко: "+data.text:"")+" Пришлите, пожалуйста, реквизиты для оплаты консультации. Даю согласие на обработку моих персональных данных на условиях Политики конфиденциальности сайта (ред. от 20.11.2026).";
+  return {saved,sent,label,text,url:contactUrl(text)};
 }
 
 /* ===== Блок записи на странице ===== */
@@ -141,7 +164,7 @@ function doneCard(res,data){
   const h=document.createElement("h3"); h.textContent="Заявка подготовлена"; box.append(h);
   const p=document.createElement("p"); p.textContent=res.label+".";p.style.fontWeight="700"; box.append(p);
   const p2=document.createElement("p");
-  p2.textContent=hasWa?"Отправьте сообщение в WhatsApp, чтобы согласовать время и оплату. Пока вы не отправили сообщение, заявка до меня не дойдет. Стоимость, длительность консультации и условия переноса сообщу до оплаты.":"Позвоните мне, чтобы согласовать время и оплату.";
+  p2.textContent=res.sent?"Заявка принята, она уже у меня. Время подтверждаю лично: напишите в WhatsApp, так быстрее. Стоимость, длительность консультации и условия переноса сообщу до оплаты.":(hasWa?"Отправьте сообщение в WhatsApp, чтобы согласовать время и оплату. Пока вы не отправили сообщение, заявка до меня не дойдет. Стоимость, длительность консультации и условия переноса сообщу до оплаты.":"Позвоните мне, чтобы согласовать время и оплату.");
   box.append(p2);
   const row=document.createElement("div"); row.className="row";
   if(hasWa){const a=document.createElement("a"); a.className="btn btn-wa"; a.href=res.url; a.target="_blank"; a.rel="noopener"; a.textContent="Отправить заявку в "+CH_NAME; row.append(a);}
@@ -443,6 +466,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#chatPanel").hi
 
 /* ===== Запуск ===== */
 renderDays(); renderSlots(); renderPicked(); renderNext();
+loadSlots();
 (async function(){
   try{
     if(typeof claude!=="undefined"&&claude.use){
