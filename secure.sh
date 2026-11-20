@@ -10,7 +10,7 @@ ufw allow 22/tcp >/dev/null
 ufw allow 80/tcp >/dev/null
 ufw allow 443/tcp >/dev/null
 ufw --force enable >/dev/null
-ufw status | head -8
+ufw status
 
 echo "2/4 Запрет подбора паролей (fail2ban)"
 if ! command -v fail2ban-client >/dev/null 2>&1; then apt-get install -y fail2ban >/dev/null; fi
@@ -28,50 +28,50 @@ JAIL
 systemctl enable fail2ban >/dev/null 2>&1 || true
 systemctl restart fail2ban
 sleep 2
-fail2ban-client status sshd | head -6 || true
+fail2ban-client status sshd >/dev/null 2>&1 && echo "   sshd под охраной: 5 попыток за 15 минут, блокировка на час"
 
 echo "3/4 Заголовки безопасности в nginx"
+mkdir -p /etc/nginx/snippets
 cat > /etc/nginx/snippets/kussatayev-security.conf <<HDR
 add_header X-Content-Type-Options "nosniff" always;
 add_header X-Frame-Options "SAMEORIGIN" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 add_header Strict-Transport-Security "max-age=31536000" always;
 HDR
-cp -a /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak.$(date +%Y%m%d-%H%M%S)
+for f in /etc/nginx/sites-available/default /etc/nginx/sites-available/kussatayev-admin; do
+  if [ -f "$f" ]; then cp -a "$f" "$f.bak.$(date +%Y%m%d-%H%M%S)"; fi
+done
 python3 - <<'PYEOF'
-import io, re
+import io
 line = "    include snippets/kussatayev-security.conf;\n"
 for path in ("/etc/nginx/sites-available/default", "/etc/nginx/sites-available/kussatayev-admin"):
     try:
-        src = io.open(path, encoding="utf-8").read()
+        src = io.open(path, encoding="utf-8").read().splitlines(True)
     except OSError:
         continue
-    if "kussatayev-security.conf" in src:
-        print("уже стоит:", path)
-        continue
-    out, depth, done = [], 0, False
-    for ln in src.splitlines(True):
-        out.append(ln)
-        if ln.strip().startswith("server") and "{" in ln:
-            depth = 1
+    out, done, n = [], False, 0
+    for ln in src:
+        if "kussatayev-security.conf" in ln:   # прежняя вставка, в том числе неудачная
             continue
-        if depth == 1 and re.match(r"\s*server_name\b", ln) and not done:
-            out.append(line)
-            done = True
-            depth = 0
-    if done:
-        io.open(path, "w", encoding="utf-8").write("".join(out))
-        print("добавлено в", path)
-    else:
-        print("не нашел server_name, пропускаю:", path)
+        out.append(ln)
+        t = ln.strip()
+        if t.startswith("server") and "{" in t:
+            done = False
+        elif (not done) and t.startswith("listen") and "443" in t:
+            out.append(line)   # внутрь блока HTTPS, один раз на блок
+            done, n = True, n + 1
+    io.open(path, "w", encoding="utf-8").write("".join(out))
+    print("   %s: вставок в блоки HTTPS: %d" % (path, n))
 PYEOF
 if nginx -t 2>/tmp/ngx.err; then
   systemctl reload nginx
   echo "   nginx перезагружен"
 else
   echo "   ОШИБКА в конфигурации, откатываю:"; cat /tmp/ngx.err
-  LAST=$(ls -t /etc/nginx/sites-available/default.bak.* | head -1)
-  cp -a "$LAST" /etc/nginx/sites-available/default
+  for f in /etc/nginx/sites-available/default /etc/nginx/sites-available/kussatayev-admin; do
+    LAST=$(ls -t $f.bak.* 2>/dev/null | head -1)
+    if [ -n "$LAST" ]; then cp -a "$LAST" "$f"; fi
+  done
   nginx -t && systemctl reload nginx
   exit 1
 fi
