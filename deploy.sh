@@ -56,6 +56,8 @@ EOF
 echo "4/5 Делаю резервную копию"
 sudo mkdir -p "$BACK"
 sudo cp -a "$ROOT/." "$BACK/"
+# держим только три последние копии сайта, остальные убираем
+ls -1dt /var/www/backup/*/ 2>/dev/null | tail -n +4 | xargs -r sudo rm -rf
 
 echo "5/5 Публикую"
 sudo cp -a ./. "$ROOT/"
