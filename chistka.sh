@@ -51,6 +51,9 @@ else
   echo "$D диск занят на $P процентов" >> $LOG
 fi
 tail -n 200 $LOG > $LOG.tmp && mv $LOG.tmp $LOG
+# короткая сводка для внешней проверки, адрес неугадываемый
+printf "disk=%s updated=%s\n" "$P" "$D" > /var/www/html/s-96b841cb4707.txt
+chmod 644 /var/www/html/s-96b841cb4707.txt
 DISK
 chmod +x /usr/local/bin/kussatayev-disk.sh
 cat > /etc/cron.d/kussatayev-disk <<CRON2
