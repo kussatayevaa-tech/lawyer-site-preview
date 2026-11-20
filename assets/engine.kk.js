@@ -100,7 +100,7 @@ function renderNext(){
   const el=$("#nextSlot"); if(!el) return;
   for(let i=0;i<DAYS.length;i++){const d=DAYS[i];const sl=d.slots.find(free); if(sl){
     el.hidden=false;
-    el.innerHTML='Кесте бойынша ең жақын уақыт: <a href="#zapis" class="ns-link"><b>'+slotLabel(d,sl)+'</b> · брондау →</a>';
+    el.innerHTML='Кесте бойынша ең жақын уақыт: <a href="#zapis" class="ns-link"><b>'+slotLabel(d,sl)+'</b> · осы уақытты сұрау →</a>';
     const a=el.querySelector(".ns-link");
     a.addEventListener("click",()=>{selDay=i;selSlot=sl.id;renderDays();renderSlots();renderPicked();});
     return;}}
@@ -112,18 +112,18 @@ function renderDays(){
     const b=document.createElement("button"); b.type="button"; b.className="day";
     b.setAttribute("aria-pressed",String(i===selDay));
     const open=d.slots.filter(free).length;
-    b.innerHTML=DOW[d.dow]+"<b>"+d.d+"</b>"+MON_S[d.m]+(open?"":" · бос емес");
+    b.innerHTML=DOW[d.dow]+"<b>"+d.d+"</b>"+MON_S[d.m]+(open?"":" · орын жоқ");
     b.addEventListener("click",()=>{selDay=i;selSlot=null;renderDays();renderSlots();renderPicked();});
     box.append(b);
   });
 }
 function renderSlots(){
   const box=$("#slots"); box.replaceChildren();
-  const d=DAYS[selDay]; if(!d){box.textContent="Бос уақыт жоқ. Мына арнаға жазыңыз:"+CH_NAME+".";return;}
+  const d=DAYS[selDay]; if(!d){box.textContent="Кестеде уақыт жоқ. Мына арнаға жазыңыз:"+CH_NAME+".";return;}
   d.slots.forEach(s=>{
     const b=document.createElement("button"); b.type="button"; b.className="slot"; b.textContent=s.time;
     const f=free(s); b.disabled=!f; b.setAttribute("aria-pressed",String(selSlot===s.id));
-    if(!f) b.title="Бос емес";
+    if(!f) b.title="Кестеде уақыт жоқ";
     b.addEventListener("click",()=>{selSlot=s.id;renderSlots();renderPicked();});
     box.append(b);
   });
@@ -221,13 +221,13 @@ function menu(){
 function startBooking(){
   DAYS=buildDays(); flow={step:"day",data:{}};
   const open=DAYS.filter(d=>d.slots.some(free)).slice(0,6);
-  if(!open.length){say(hasWa?"Жақын күндерге бос уақыт жоқ. WhatsApp-қа жазыңыз, уақытты қолмен таңдаймыз.":"Жақын күндерге бос уақыт жоқ. Кейінірек кіріп көріңіз: уақыттар жаңартылып отырады.");if(hasWa)contactBtn("WhatsApp ашу",contactUrl("Сәлеметсіз бе, Айдана Ерланқызы! Кеңеске ең жақын уақытты айтып жіберіңізші."));flow=null;return menu();}
+  if(!open.length){say(hasWa?"Жақын күндерге кестеде уақыт жоқ. WhatsApp-қа жазыңыз, уақытты қолмен таңдаймыз.":"Жақын күндерге кестеде уақыт жоқ. Кейінірек кіріп көріңіз: кесте жаңартылып отырады.");if(hasWa)contactBtn("WhatsApp ашу",contactUrl("Сәлеметсіз бе, Айдана Ерланқызы! Кеңеске ең жақын уақытты айтып жіберіңізші."));flow=null;return menu();}
   say("Күнді таңдаңыз.");
   setQuick(open.map(d=>({label:dayShort(d),run:()=>pickDay(d)})).concat([{label:"Бас тарту",run:()=>{flow=null;say("Жақсы. Тағы не айтайын?");menu();}}]));
 }
 function pickDay(d){
   flow.data.day=d; const fs=d.slots.filter(free);
-  say("Бос уақыт,"+d.d+" "+MONTHS[d.m]+":");
+  say("Кесте бойынша уақыт, "+d.d+" "+MONTHS[d.m]+":");
   setQuick(fs.map(s=>({label:s.time,run:()=>pickSlot(d,s)})).concat([{label:"Басқа күн",run:startBooking}]));
 }
 function pickSlot(d,s){
@@ -370,13 +370,13 @@ function rules(){
 }
 function tools(){
   return [
-    {name:"get_free_slots",description:"Возвращает свободные окна для консультации (до 12). Можно указать date в формате YYYY-MM-DD. Время по Астане.",
+    {name:"get_free_slots",description:"Возвращает окна по графику приема (до 12). Это график, а не подтвержденная занятость: время подтверждает юрист. Можно указать date в формате YYYY-MM-DD. Время по Астане.",
      inputSchema:{type:"object",properties:{date:{type:"string",description:"Дата YYYY-MM-DD, необязательно"}}},
      execute(inp){
        DAYS=buildDays(); const out=[];
        for(const d of DAYS){ if(inp&&inp.date&&inp.date!==d.key) continue;
          for(const s of d.slots){ if(free(s)&&out.length<12) out.push({slot_id:s.id,label:slotLabel(d,s)}); } }
-       return out.length?out:"Свободных окон по этому запросу нет.";
+       return out.length?out:"Окон по графику по этому запросу нет.";
      }},
     {name:"book_consultation",description:"Записывает клиента на консультацию. Вызывать только после явного согласия клиента на обработку персональных данных.",
      inputSchema:{type:"object",properties:{slot_id:{type:"string"},name:{type:"string"},phone:{type:"string"},topic:{type:"string"},consent_confirmed:{type:"boolean"}},required:["slot_id","name","phone","consent_confirmed"]},
