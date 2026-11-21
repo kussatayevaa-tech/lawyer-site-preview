@@ -917,7 +917,11 @@ def openai_transcribe(path, key, model, lang):
         body += ("--%s\r\nContent-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n"
                  % (boundary, name, val)).encode("utf-8")
     fname = os.path.basename(path)
-    ctype = mimetypes.guess_type(fname)[0] or "application/octet-stream"
+    if fname.lower().endswith(".oga"):      # OpenAI не принимает расширение oga
+        fname = fname[:-4] + ".ogg"
+    ctype = {"ogg": "audio/ogg", "wav": "audio/wav", "mp3": "audio/mpeg",
+             "m4a": "audio/mp4"}.get(fname.rsplit(".", 1)[-1].lower()) \
+            or mimetypes.guess_type(fname)[0] or "application/octet-stream"
     with open(path, "rb") as f:
         data = f.read()
     body += ("--%s\r\nContent-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\n"
@@ -1117,6 +1121,8 @@ def voice_to_text(file_id, chat_id):
 
         if (ps.get("stt_engine") or "local") == "openai" and ps.get("openai_key"):
             text, beda = openai_transcribe(src, ps["openai_key"], ps.get("stt_model"), want)
+            if not text and beda and "format" in beda.lower():
+                text, beda = openai_transcribe(wav, ps["openai_key"], ps.get("stt_model"), want)
             if text:
                 return text, "openai:" + (want if want != "auto" else "")
             log("OpenAI не справился: %s" % beda)
